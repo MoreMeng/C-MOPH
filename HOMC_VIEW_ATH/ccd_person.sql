@@ -1,82 +1,106 @@
-
-CREATE     FUNCTION [dbo].[ccd_person]
-(	
+CREATE FUNCTION [dbo].[ccd_person] (
 	-- Add the parameters for the function here
-	@SDATE char(8),
-	@EDATE char(8)
-)
-RETURNS TABLE 
+	@SDATE CHAR(8),
+	@EDATE CHAR(8)
+	)
+RETURNS TABLE
 AS
-RETURN 
-(--§ÈπÀ“¢ÈÕ¡Ÿ≈ºŸÈªË«¬πÕ°
-SELECT  distinct       
-ctl.PCUCODE as hospcode
-, REPLACE(CASE WHEN s.CardID IS NULL or  s.CardID  = '' THEN s.CardID ELSE s.CardID END, '-', '') AS cid
-, ltrim(o.hn) AS hn
-, o.regNo as vn
-    ,dbo.PTITLEMAP( p.titleCode, 'OPPP') as  provis_pname
-    , isnull(p.firstName,'-') AS fname
-    , case when p.lastName =NULL  then '-'
-           when p.lastName =' ' then '-' 
-                else  isnull(p.lastName,'-')  end AS lname
-    , isnull( (convert(DateTime,convert(char,birthDay-5430000)))  ,' ')AS birthday
-    , CASE p.sex
-    WHEN '™' THEN '1' 
-    WHEN  '≠' THEN '2'  
-    else '2' END AS sex
-
-    ,case   when t.titleName like 'æ√–%' then '6'  --21/12/59  §”π”ÀπÈ“™◊ËÕ‡ªÁπæ√–  ∂“π– ¡√ µÈÕß‡ªÁπ  ¡≥–
-    else ISNULL( p.marital ,'9')
-    end as nhso_marriage_code
-    ,ISNULL( RIGHT('000' + RTRIM(dbo.NATIONMAP(p.nation,'OPPP')), 3),'999') AS nation_code                      
-	,ISNULL( RIGHT('000' + RTRIM(dbo.NATIONMAP(p.race,'OPPP')), 3),'999')  AS citizenship
-    ,case 
-    when  p.religion  IS  null then '99' 
-    when  p.religion  IS not null then   '0'+ p.religion end  as religion_code  
-	,p.addr1 as address
-	,p.moo 
-	,p.addr2 as street
-,right(tb.tambonCode,2) as subdistrict_code
-,right(p.regionCode,2) as district_code
-,p.areaCode as province_code
-,tb.tambonCode as address_id
-,replace (p.phone,'-','') as telephone
-,replace (p.mobilephone,'-','') as mobile
-,s.relatives as informname
-,s.relativePhone as informtel
-,allergy.drugallergy
-
-
-FROM OPD_H o (nolock)  
-  --     dbo.PPOP_PERSON   pp on o.hn=pp.HN  LEFT OUTER JOIN
-left join      Ipd_h I (nolock) ON I.hn = o.hn and I.regist_flag = o.regNo  
-left join      dbo.PPOP_CON  (nolock) AS ctl ON ctl.CON_KEY = '000' 
-left JOIN      dbo.PATIENT  (nolock) AS p ON p.hn = o.hn 
-left JOIN      dbo.PTITLE  (nolock) AS t ON t.titleCode = p.titleCode 
-left JOIN     dbo.PatSS  (nolock) AS s ON s.hn = p.hn
-left join Tambon tb on tb.tambonCode=p.regionCode+p.tambonCode
-left  join REGION r on r.regionCode=p.regionCode
-outer apply ( SELECT DISTINCT REPLACE( replace(STUFF((SELECT  ', '+rtrim(gen_name) 
-				from medalery  a
-				left join Med_inv m on m.site ='1' and a.medCode = m.code
-				where a.hn=o.hn and (delFlag is null or delFlag <> 'Y' ) FOR XML PATH('')),1,1,''
-				), '&gt;', '>'), '&lt;', '<') as drugallergy
-			) as allergy
-
-
-
---where  ((registDate between '25611001' and '25611001'    and ipdStatus='0')or  (discharge_date between '25591001' and '25591001'      and ipdStatus='D'))  
-where  ((registDate between @SDATE and @EDATE  )or  (discharge_date between @SDATE and @EDATE and ipdStatus='D'))
-and exists (select * from Bill_h h(nolock) where o.hn=h.hn and o.regNo=h.regNo)--‰¡Ë‡Õ“¬◊¡∫—µ√
-
-
-)
-
-
+RETURN (
+		--‡∏Ñ‡πâ‡∏ô‡∏´‡∏≤‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•‡∏ú‡∏π‡πâ‡∏õ‡πà‡∏ß‡∏¢‡∏ô‡∏≠‡∏Å
+		SELECT DISTINCT ctl.PCUCODE AS hospcode,
+			REPLACE(CASE
+					WHEN s.CardID IS NULL
+						OR s.CardID = ''
+						THEN s.CardID
+					ELSE s.CardID
+					END, '-', '') AS cid,
+			ltrim(o.hn) AS hn,
+			o.regNo AS vn,
+			dbo.PTITLEMAP(p.titleCode, 'OPPP') AS provis_pname,
+			isnull(p.firstName, '-') AS fname,
+			CASE
+				WHEN p.lastName = NULL
+					THEN '-'
+				WHEN p.lastName = ' '
+					THEN '-'
+				ELSE isnull(p.lastName, '-')
+				END AS lname,
+			isnull((convert(DATETIME, convert(CHAR, birthDay - 5430000))), ' ') AS birthday,
+			CASE p.sex
+				WHEN '‡∏ä'
+					THEN '1'
+				WHEN '‡∏ç'
+					THEN '2'
+				ELSE '2'
+				END AS sex,
+			CASE
+				WHEN t.titleName LIKE '‡∏û‡∏£‡∏∞%'
+					THEN '6' --21/12/59  ‡∏Ñ‡∏≥‡∏ô‡∏≥‡∏´‡∏ô‡πâ‡∏≤‡∏ä‡∏∑‡πà‡∏≠‡πÄ‡∏õ‡πá‡∏ô‡∏û‡∏£‡∏∞ ‡∏™‡∏ñ‡∏≤‡∏ô‡∏∞‡∏™‡∏°‡∏£‡∏™‡∏ï‡πâ‡∏≠‡∏á‡πÄ‡∏õ‡πá‡∏ô ‡∏™‡∏°‡∏ì‡∏∞
+				ELSE ISNULL(p.marital, '9')
+				END AS nhso_marriage_code,
+			ISNULL(RIGHT('000' + RTRIM(dbo.NATIONMAP(p.nation, 'OPPP')), 3), '999') AS nation_code,
+			ISNULL(RIGHT('000' + RTRIM(dbo.NATIONMAP(p.race, 'OPPP')), 3), '999') AS citizenship,
+			CASE
+				WHEN p.religion IS NULL
+					THEN '99'
+				WHEN p.religion IS NOT NULL
+					THEN '0' + p.religion
+				END AS religion_code,
+			p.addr1 AS address,
+			p.moo,
+			p.addr2 AS street,
+			right(tb.tambonCode, 2) AS subdistrict_code,
+			right(p.regionCode, 2) AS district_code,
+			p.areaCode AS province_code,
+			tb.tambonCode AS address_id,
+			replace(p.phone, '-', '') AS telephone,
+			replace(p.mobilephone, '-', '') AS mobile,
+			s.relatives AS informname,
+			s.relativePhone AS informtel,
+			allergy.drugallergy
+		FROM OPD_H o(NOLOCK)
+		--     dbo.PPOP_PERSON   pp on o.hn=pp.HN  LEFT OUTER JOIN
+		LEFT JOIN Ipd_h I(NOLOCK) ON I.hn = o.hn
+			AND I.regist_flag = o.regNo
+		LEFT JOIN dbo.PPOP_CON(NOLOCK) AS ctl ON ctl.CON_KEY = '000'
+		LEFT JOIN dbo.PATIENT(NOLOCK) AS p ON p.hn = o.hn
+		LEFT JOIN dbo.PTITLE(NOLOCK) AS t ON t.titleCode = p.titleCode
+		LEFT JOIN dbo.PatSS(NOLOCK) AS s ON s.hn = p.hn
+		LEFT JOIN Tambon tb ON tb.tambonCode = p.regionCode + p.tambonCode
+		LEFT JOIN REGION r ON r.regionCode = p.regionCode
+		OUTER APPLY (
+			SELECT DISTINCT REPLACE(replace(STUFF((
+								SELECT ', ' + rtrim(gen_name)
+								FROM medalery a
+								LEFT JOIN Med_inv m ON m.site = '1'
+									AND a.medCode = m.code
+								WHERE a.hn = o.hn
+									AND (
+										delFlag IS NULL
+										OR delFlag <> 'Y'
+										)
+								FOR XML PATH('')
+								), 1, 1, ''), '&gt;', '>'), '&lt;', '<') AS drugallergy
+			) AS allergy
+		--where  ((registDate between '25611001' and '25611001'    and ipdStatus='0')or  (discharge_date between '25591001' and '25591001'      and ipdStatus='D'))
+		WHERE (
+				(
+					registDate BETWEEN @SDATE
+						AND @EDATE
+					)
+				OR (
+					discharge_date BETWEEN @SDATE
+						AND @EDATE
+					AND ipdStatus = 'D'
+					)
+				)
+			AND EXISTS (
+				SELECT *
+				FROM Bill_h h(NOLOCK)
+				WHERE o.hn = h.hn
+					AND o.regNo = h.regNo
+				) --‡πÑ‡∏°‡πà‡πÄ‡∏≠‡∏≤‡∏¢‡∏∑‡∏°‡∏ö‡∏±‡∏ï‡∏£
+		)
 GO
-
-
-
-
 
 

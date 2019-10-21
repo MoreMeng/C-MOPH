@@ -1,42 +1,50 @@
-
-CREATE      FUNCTION [dbo].[ccd_opd_visit]
-(	
+CREATE FUNCTION [dbo].[ccd_opd_visit] (
 	-- Add the parameters for the function here
-	@SDATE char(8),
-	@EDATE char(8)
-)
-RETURNS TABLE 
+	@SDATE CHAR(8),
+	@EDATE CHAR(8)
+	)
+RETURNS TABLE
 AS
-RETURN 
-(
-
-SELECT distinct   ctl.PCUCODE as hospcode
-,  LTRIM(o.hn) AS hn
-,o.regNo AS vn 
-,I.ladmit_n as an
-, (convert(DateTime,convert(char,regist_date-5430000)))AS vstdate
-, convert(time,(left(o.timePt,2)+':'+right(o.timePt,2)) ,108) AS vsttime   
-,isnull(RTRIM( dbo.DEPTMAP(d.deptCode, 'OPPP') ),'00100')AS clinic_code
-,DEPT.deptDesc as name
- 
-, case  when (dbo.PAYTYPEMAP(b.useDrg, 'OPPP') =NULL ) OR (dbo.PAYTYPEMAP(b.useDrg, 'OPPP') ='')  then '9100'  
-        else isnull(dbo.PAYTYPEMAP(b.useDrg, 'OPPP'),'9100') end  AS pttype_std_code
-, '' as pttype_std_name
-    
-FROM  dbo.OPD_H AS o (nolock) 
-      LEFT  JOIN  Ipd_h I  (nolock) ON I.hn = o.hn and I.regist_flag = o.regNo  
-	  inner  JOIN  Deptq_d d (nolock) on o.hn=d.hn and o.regNo=d.regNo
-	  inner join   DEPT  (nolock) on d.deptCode = DEPT.deptCode
-      inner  JOIN  Bill_h AS b  (nolock) ON b.hn = o.hn AND b.regNo = o.regNo 
-      LEFT JOIN   PPOP_CON AS ctl ON ctl.CON_KEY = '000' 
-  
-where  registDate between @SDATE and @EDATE  -- á¡éä¢ 9/4/62 
-and exists (select * from Bill_h h(nolock) where o.hn=h.hn and o.regNo=h.regNo) --äÁèàÍÒÂ×ÁºÑµÃ
-and not exists (select * from PPOP_DEATH D (nolock)  where D.HN=o.hn and o.registDate>D.DDEATH) --äÁèàÍÒvisitËÅÑ§µÒÂ 
-
-  
-)
-
+RETURN (
+		SELECT DISTINCT ctl.PCUCODE AS hospcode,
+			LTRIM(o.hn) AS hn,
+			o.regNo AS vn,
+			I.ladmit_n AS an,
+			(convert(DATETIME, convert(CHAR, regist_date - 5430000))) AS vstdate,
+			convert(TIME, (left(o.timePt, 2) + ':' + right(o.timePt, 2)), 108) AS vsttime,
+			isnull(RTRIM(dbo.DEPTMAP(d.deptCode, 'OPPP')), '00100') AS clinic_code,
+			DEPT.deptDesc AS name,
+			CASE
+				WHEN (dbo.PAYTYPEMAP(b.useDrg, 'OPPP') = NULL)
+					OR (dbo.PAYTYPEMAP(b.useDrg, 'OPPP') = '')
+					THEN '9100'
+				ELSE isnull(dbo.PAYTYPEMAP(b.useDrg, 'OPPP'), '9100')
+				END AS pttype_std_code,
+			'' AS pttype_std_name
+		FROM dbo.OPD_H AS o(NOLOCK)
+		LEFT JOIN Ipd_h I(NOLOCK) ON I.hn = o.hn
+			AND I.regist_flag = o.regNo
+		INNER JOIN Deptq_d d(NOLOCK) ON o.hn = d.hn
+			AND o.regNo = d.regNo
+		INNER JOIN DEPT(NOLOCK) ON d.deptCode = DEPT.deptCode
+		INNER JOIN Bill_h AS b(NOLOCK) ON b.hn = o.hn
+			AND b.regNo = o.regNo
+		LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
+		WHERE registDate BETWEEN @SDATE
+				AND @EDATE -- à¹à¸à¹‰à¹„à¸‚ 9/4/62
+			AND EXISTS (
+				SELECT *
+				FROM Bill_h h(NOLOCK)
+				WHERE o.hn = h.hn
+					AND o.regNo = h.regNo
+				) --à¹„à¸¡à¹ˆà¹€à¸­à¸²à¸¢à¸·à¸¡à¸šà¸±à¸•à¸£
+			AND NOT EXISTS (
+				SELECT *
+				FROM PPOP_DEATH D(NOLOCK)
+				WHERE D.HN = o.hn
+					AND o.registDate > D.DDEATH
+				) --à¹„à¸¡à¹ˆà¹€à¸­à¸²visità¸«à¸¥à¸±à¸‡à¸•à¸²à¸¢
+		)
 GO
 
 

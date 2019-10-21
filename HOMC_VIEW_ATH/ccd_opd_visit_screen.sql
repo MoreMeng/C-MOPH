@@ -1,65 +1,99 @@
-
-CREATE      FUNCTION [dbo].[ccd_opd_visit_screen]
-(	
+CREATE FUNCTION [dbo].[ccd_opd_visit_screen] (
 	-- Add the parameters for the function here
-	@SDATE char(8),
-	@EDATE char(8)
-)
-RETURNS TABLE 
+	@SDATE CHAR(8),
+	@EDATE CHAR(8)
+	)
+RETURNS TABLE
 AS
-RETURN 
-(
-
-SELECT    ctl.PCUCODE as hospcode
-,  LTRIM(o.hn) AS hn
-,o.regNo AS vn 
-,v.Symtom as cc
-,''as hpi
-,case when  CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Lbloodpress))  ,'0.00')) ='0' then null
-   else CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Lbloodpress))  ,'0.00'))  end as dbp
- ,case when  CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Hbloodpress ))  ,'0.00')) ='0' then null
-   else CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Hbloodpress ))  ,'0.00')) end    as sbp
-,case when CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Pulse ))  ,'0.00'))='0' then null
-   else CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Pulse ))  ,'0.00')) end as pulse
-,case when  CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Breathe ))  ,'0.00'))='0' then null 
-   else CONVERT (decimal(18,0), ISNULL ( (CONVERT(float,v.Breathe ))  ,'0.00')) end as  respiratory_rate
-
-,LTRIM(STR(v.Temperature, 4, 1))  as temperature
-,case when  CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Weight))  ,'0.00')) ='0' then null
-   else CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Weight))  ,'0.00'))  end as weight
- ,case when  CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Height ))  ,'0.00')) ='0' then null
-   else CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Height ))  ,'0.00')) end    as height 
-
-,case when (v.Weight is not null and v.Height is not null ) then convert(decimal(18,2), (CONVERT(float,v.Weight))  /(power((v.Height *.01),2 )) )
-else 0 end as bmi
-,case when  CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Waist))  ,'0.00')) ='0' then null
-   else CONVERT (decimal(18,2), ISNULL ( (CONVERT(float,v.Waist))  ,'0.00'))  end as waist
-,v.Treatment as pe
-,case v.Alchohol when 'Y' then '1'
-                 when NULL then 'NA'
-				 else '2' end  as alcohol_use
-,case v.Smoke    when 'Y' then '1'
-                 when NULL then 'NA'
-				 else '2' end   as cigar_use 
-,''as pregnant
-,''as lactation
-,''as pain_score
-,''as note 
-
-
-
-FROM  dbo.OPD_H AS o (nolock) 
-       LEFT  JOIN  SSREGIST v  (nolock) on v.hn=o.hn and v.RegNo=o.regNo
-       LEFT JOIN   PPOP_CON AS ctl ON ctl.CON_KEY = '000' 
-   
---where  registDate between '25611002' and '25611002'
-where  registDate between @SDATE and @EDATE  
-and exists (select * from Bill_h h(nolock) where o.hn=h.hn and o.regNo=h.regNo)
-and not exists (select * from PPOP_DEATH D (nolock)  where D.HN=o.hn and o.registDate>D.DDEATH)
-
-  
-  )
-
+RETURN (
+		SELECT ctl.PCUCODE AS hospcode,
+			LTRIM(o.hn) AS hn,
+			o.regNo AS vn,
+			v.Symtom AS cc,
+			'' AS hpi,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Lbloodpress)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Lbloodpress)), '0.00'))
+				END AS dbp,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Hbloodpress)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Hbloodpress)), '0.00'))
+				END AS sbp,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Pulse)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Pulse)), '0.00'))
+				END AS pulse,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Breathe)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 0), ISNULL((CONVERT(FLOAT, v.Breathe)), '0.00'))
+				END AS respiratory_rate,
+			LTRIM(STR(v.Temperature, 4, 1)) AS temperature,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Weight)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Weight)), '0.00'))
+				END AS weight,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Height)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Height)), '0.00'))
+				END AS height,
+			CASE
+				WHEN (
+						v.Weight IS NOT NULL
+						AND v.Height IS NOT NULL
+						)
+					THEN convert(DECIMAL(18, 2), (CONVERT(FLOAT, v.Weight)) / (power((v.Height * .01), 2)))
+				ELSE 0
+				END AS bmi,
+			CASE
+				WHEN CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Waist)), '0.00')) = '0'
+					THEN NULL
+				ELSE CONVERT(DECIMAL(18, 2), ISNULL((CONVERT(FLOAT, v.Waist)), '0.00'))
+				END AS waist,
+			v.Treatment AS pe,
+			CASE v.Alchohol
+				WHEN 'Y'
+					THEN '1'
+				WHEN NULL
+					THEN 'NA'
+				ELSE '2'
+				END AS alcohol_use,
+			CASE v.Smoke
+				WHEN 'Y'
+					THEN '1'
+				WHEN NULL
+					THEN 'NA'
+				ELSE '2'
+				END AS cigar_use,
+			'' AS pregnant,
+			'' AS lactation,
+			'' AS pain_score,
+			'' AS note
+		FROM dbo.OPD_H AS o(NOLOCK)
+		LEFT JOIN SSREGIST v(NOLOCK) ON v.hn = o.hn
+			AND v.RegNo = o.regNo
+		LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
+		--where  registDate between '25611002' and '25611002'
+		WHERE registDate BETWEEN @SDATE
+				AND @EDATE
+			AND EXISTS (
+				SELECT *
+				FROM Bill_h h(NOLOCK)
+				WHERE o.hn = h.hn
+					AND o.regNo = h.regNo
+				)
+			AND NOT EXISTS (
+				SELECT *
+				FROM PPOP_DEATH D(NOLOCK)
+				WHERE D.HN = o.hn
+					AND o.registDate > D.DDEATH
+				)
+		)
 GO
 
 
