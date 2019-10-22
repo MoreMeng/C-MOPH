@@ -1,7 +1,7 @@
 ALTER VIEW [dbo].[ccd_person]
 AS
-SELECT '10689' AS hospcode,
-    PT.hn,
+SELECT ctl.PCUCODE AS hospcode,
+    LTRIM(PT.hn) AS hn,
     REPLACE(CASE
             WHEN S.CardID IS NULL OR S.CardID = ''
                 THEN S.CardID
@@ -54,3 +54,4 @@ LEFT JOIN dbo.PTITLE(NOLOCK) T ON T.titleCode = PT.titleCode
 LEFT JOIN Tambon TB ON TB.tambonCode = PT.regionCode + PT.tambonCode
 LEFT JOIN REGION R ON R.regionCode = PT.regionCode
 LEFT JOIN dbo.PatSS(NOLOCK) S ON S.hn = PT.hn
+LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
