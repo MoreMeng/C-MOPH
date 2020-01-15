@@ -44,14 +44,14 @@ SELECT ctl.PCUCODE AS hospcode,
     RIGHT(PT.regionCode, 2) AS district_code,
     PT.areaCode AS province_code,
     TB.tambonCode AS address_id,
-    replace(PT.phone, '-', '') AS telephone,
-    replace(PT.mobilephone, '-', '') AS mobile,
+    REPLACE(PT.phone, '-', '') AS telephone,
+    REPLACE(PT.mobilephone, '-', '') AS mobile,
     RTRIM(S.relatives) AS informname,
     S.relativePhone AS informtel,
     PT.medAlergy AS drugallergy
 FROM dbo.PATIENT PT
 LEFT JOIN dbo.PTITLE(NOLOCK) T ON T.titleCode = PT.titleCode
-LEFT JOIN Tambon TB ON TB.tambonCode = PT.regionCode + PT.tambonCode
-LEFT JOIN REGION R ON R.regionCode = PT.regionCode
+LEFT JOIN dbo.Tambon TB(NOLOCK) ON TB.tambonCode = PT.regionCode + PT.tambonCode
+LEFT JOIN dbo.REGION R(NOLOCK) ON R.regionCode = PT.regionCode
 LEFT JOIN dbo.PatSS(NOLOCK) S ON S.hn = PT.hn
-LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
+LEFT JOIN dbo.PPOP_CON AS ctl ON ctl.CON_KEY = '000'
