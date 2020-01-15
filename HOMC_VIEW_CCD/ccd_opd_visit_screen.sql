@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[ccd_opd_visit_screen]
+ALTER VIEW [dbo].[ccd_opd_visit_screen]
 AS
 SELECT ctl.PCUCODE AS hospcode,
 	LTRIM(o.hn) AS hn,
@@ -72,3 +72,5 @@ FROM dbo.OPD_H AS o(NOLOCK)
 LEFT JOIN SSREGIST v(NOLOCK) ON v.hn = o.hn
 	AND v.RegNo = o.regNo
 LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
+WHERE o.ipdStatus = '0' AND o.registDate > '25621001'
+-- AND LTRIM(o.hn) = '18972'
