@@ -1,5 +1,5 @@
--- ALTER VIEW [dbo].[ccd_dispense_items]
--- AS
+ALTER VIEW [dbo].[ccd_dispense_items]
+AS
 SELECT TOP 100 ctl.PCUCODE AS hospcode,
     LTRIM(p.hn) AS hn,
     p.registNo AS vn,
@@ -20,5 +20,5 @@ LEFT JOIN dbo.Lamed L1 WITH (NOLOCK) ON L1.lamed_code = p.lamedHow
 LEFT JOIN dbo.Lamed L2 WITH (NOLOCK) ON L2.lamed_code = p.lamedUnit
 LEFT JOIN dbo.Med_Gov24Map AS g WITH (NOLOCK) ON g.invCode = M.code AND g.invType = 'M'
 LEFT JOIN dbo.PPOP_CON AS ctl WITH (NOLOCK) ON ctl.CON_KEY = '000'
-    WHERE p.invCode = 'THCO1'
+    -- WHERE p.invCode = 'THCO1'
     -- WHERE dc.TMTID LIKE '1129720'
