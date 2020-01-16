@@ -22,5 +22,5 @@ INNER JOIN dbo.DEPT D(NOLOCK) ON Q.deptCode = D.deptCode
 INNER JOIN dbo.Bill_h B(NOLOCK) ON B.hn = O.hn AND B.regNo = O.regNo
 LEFT JOIN dbo.Paytype PT WITH (NOLOCK) ON PT.pay_typecode = B.useDrg
 LEFT JOIN dbo.PPOP_CON CTL ON CTL.CON_KEY = '000'
-WHERE O.registDate > '25621001'
+WHERE O.registDate >= '25621001'
 -- AND LTRIM(O.hn) = '81247'

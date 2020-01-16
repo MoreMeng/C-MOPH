@@ -72,5 +72,5 @@ FROM dbo.OPD_H AS o(NOLOCK)
 LEFT JOIN SSREGIST v(NOLOCK) ON v.hn = o.hn
 	AND v.RegNo = o.regNo
 LEFT JOIN PPOP_CON AS ctl ON ctl.CON_KEY = '000'
-WHERE o.ipdStatus = '0' AND o.registDate > '25621001'
+WHERE o.ipdStatus = '0' AND o.registDate >= '25621001'
 -- AND LTRIM(o.hn) = '18972'

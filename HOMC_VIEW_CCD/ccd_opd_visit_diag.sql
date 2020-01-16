@@ -21,6 +21,6 @@ INNER JOIN ICD101(NOLOCK) ON ICD101.CODE = d.ICDCode
 INNER JOIN PROVIDER AS dc(NOLOCK) ON dc.PROVIDER = d.DocCode
 LEFT JOIN dbo.PPOP_CON AS ctl(NOLOCK) ON ctl.CON_KEY = '000'
 WHERE
-o.ipdStatus = '0' AND o.registDate > '25621001'
+o.ipdStatus = '0' AND o.registDate >= '25621001'
 -- AND LTRIM(o.hn) = '18972'
 -- AND o.registDate = '25621202'

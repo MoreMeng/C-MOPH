@@ -13,6 +13,6 @@ FROM dbo.OPD_H AS o(NOLOCK)
 INNER JOIN dbo.PATDIAG AS d(NOLOCK) ON d.Hn = o.hn AND d.regNo = o.regNo AND d.DiagType <> 'P' AND d.dxtype IN ('1', '4')
 LEFT JOIN dbo.PatSS(NOLOCK) AS s ON s.hn = o.hn
 LEFT JOIN dbo.PPOP_CON AS ctl(NOLOCK) ON ctl.CON_KEY = '000'
-WHERE o.ipdStatus = '0' AND o.registDate > '25621001'
+WHERE o.ipdStatus = '0' AND o.registDate >= '25621001'
 -- AND LTRIM(o.hn) = '18972'
     -- AND o.registDate = '25621202'

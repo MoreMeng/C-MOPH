@@ -12,5 +12,5 @@ FROM dbo.Appoint A(NOLOCK)
 LEFT JOIN dbo.OPD_H o(NOLOCK) ON A.hn = o.hn AND (A.appoint_regNo = o.regNo OR (convert(CHAR, convert(NUMERIC, convert(CHAR, keyin_time, 112)) + 5430000) = o.registDate))
 LEFT JOIN PROVIDER dc(NOLOCK) ON dc.PROVIDER = A.doctor
 LEFT JOIN dbo.PPOP_CON ctl ON ctl.CON_KEY = '000'
-WHERE o.registDate > '25621001'
+WHERE o.registDate >= '25621001'
 -- AND LTRIM(o.hn) = '18972'
