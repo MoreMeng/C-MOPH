@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[ccd_lab_result]
+ALTER VIEW [dbo].[ccd_lab_result]
 AS
 SELECT CTL.PCUCODE AS hospcode,
 	LTRIM(O.hn) AS hn,
@@ -9,7 +9,7 @@ SELECT CTL.PCUCODE AS hospcode,
 	TB.OUTVALUE AS provis_labcode,
 	S.result_name AS lab_items_name,
 	R.real_res AS lab_order_result,
-	S.result_unit,
+	S.result_unit AS lab_items_unit,
 	R.low_normal + '-' + R.high_normal AS lab_items_normal_value
 FROM dbo.OPD_H(NOLOCK) AS O
 INNER JOIN dbo.Bill_h(NOLOCK) AS H ON H.hn = O.hn
