@@ -1,6 +1,6 @@
 ALTER VIEW [dbo].[ccd_opd_visit_procedure]
 AS
-SELECT TOP 100 ctl.PCUCODE AS hospcode,
+SELECT ctl.PCUCODE AS hospcode,
     -- o.registDate,
 	LTRIM(o.hn) AS hn,
 	o.regNo AS vn,
