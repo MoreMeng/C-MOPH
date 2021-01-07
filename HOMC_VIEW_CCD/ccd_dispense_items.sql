@@ -23,6 +23,7 @@ LEFT JOIN dbo.Lamed L2 WITH (NOLOCK) ON L2.lamed_code = p.lamedUnit
 LEFT JOIN dbo.Med_Gov24Map AS g WITH (NOLOCK) ON g.invCode = M.code AND g.invType = 'M'
 LEFT JOIN dbo.PPOP_CON AS ctl WITH (NOLOCK) ON ctl.CON_KEY = '000'
 WHERE p.registDate > '25621001'
+AND p.accQty > 0
     -- AND LTRIM(p.hn) = '144207' AND p.registNo = '0005'
     -- WHERE p.invCode = 'THCO1'
     -- WHERE dc.TMTID LIKE '1129720'
